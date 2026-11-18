@@ -53,13 +53,31 @@ printf '  Found the tool in: %s\n' "$TOOL"
 
 # Bring today's code across, so the fixes in this download are in use.
 CHANGED=""
-if [ -f "$HERE/papervoice/store.py" ] && [ -f "$TOOL/papervoice/store.py" ]; then
-  if ! cmp -s "$HERE/papervoice/store.py" "$TOOL/papervoice/store.py"; then
-    if cp "$HERE/papervoice/store.py" "$TOOL/papervoice/store.py" 2>/dev/null; then
-      CHANGED="yes"
-    fi
-  fi
-fi
+sync_file() {
+  src="$1"
+  rel="${src#"$HERE"/}"
+  dst="$TOOL/$rel"
+  [ -f "$src" ] || return 0
+  cmp -s "$src" "$dst" 2>/dev/null && return 0
+  mkdir -p "$(dirname "$dst")" 2>/dev/null || return 0
+  cp "$src" "$dst" 2>/dev/null || return 0
+  case "$rel" in
+    *.command) chmod +x "$dst" 2>/dev/null ;;
+  esac
+  CHANGED="yes"
+}
+
+# The whole tool, its setup file and the launchers - the Desktop shortcut runs
+# the launchers, so they have to be current too.
+while IFS= read -r item; do
+  [ -n "$item" ] || continue
+  sync_file "$item"
+done < <(find "$HERE/papervoice" -type f -not -path '*/__pycache__/*' -print 2>/dev/null)
+for item in "pyproject.toml" "README.md" "How to start.txt" \
+            "Start Audiobook Tool.command" "Start Audiobook Tool (iPhone).command" \
+            "Install Kokoro Voices.command"; do
+  sync_file "$HERE/$item"
+done
 
 # Never overwrite a Desktop item this tool did not create.
 if [ -e "$SHORTCUT" ] && ! grep -q "$MARKER" "$SHORTCUT" 2>/dev/null; then

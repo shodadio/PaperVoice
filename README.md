@@ -13,7 +13,8 @@ play in Books, VLC, or anywhere else.
   since it converts them to EPUB first.
 - **Splits books into chapters** in reading order, so you can narrate only what you want
   and the finished M4B keeps real chapter marks.
-- **Narrates locally.** The neural Kokoro voices run on this Mac's GPU; the built-in macOS
+- **Narrates locally.** The neural Kokoro voices run on this Mac's GPU where the GPU can
+  do the work, and on the CPU for the few steps Apple's Metal cannot run; the built-in macOS
   voices are always there as an instant fallback.
 - **Serves a phone-first web app** on your own Wi-Fi, so the iPhone can add books and
   download finished audio without a cable.
@@ -55,7 +56,7 @@ Finished files land in **Files → Downloads** on iOS. Long-press one, **Share**
 
 | Engine | What it is | Setup |
 | --- | --- | --- |
-| **Kokoro** | Neural voices, 12 narrators (US and UK, female and male), 24 kHz, runs on the Apple GPU | One double-click, see below |
+| **Kokoro** | Neural voices, 12 narrators (US and UK, female and male), 24 kHz, uses the Apple GPU | One double-click, see below |
 | **macOS voices** | Apple's built-in `say` voices — robotic but perfectly usable, and instant | None, always available |
 | **Silent** | A placeholder that writes silent audio; only used when neither of the above can load | — |
 
@@ -71,6 +72,16 @@ the first time it actually narrates. Everything is free and on-device.
 The start-up launcher also offers this on its first run — choosing "Use macOS voices" there
 only silences that prompt; the installer file still works whenever you want the better
 voices.
+
+### Is it using the GPU?
+
+Under the voice picker the page says which chip is doing the work — "Narrating on the
+Apple GPU" or "Narrating on the CPU". The launcher sets the one PyTorch setting Kokoro
+needs for Metal on a Mac, so on an Apple Silicon Mac it should say the GPU.
+
+If it says the CPU on an Apple Silicon Mac, the installed Kokoro is too old to choose a
+device: double-click **Install Kokoro Voices.command** again to update it. On an Intel Mac
+there is no GPU option and the CPU is the fastest available path.
 
 ## Where your books live
 
@@ -106,7 +117,9 @@ Useful flags:
 | `--allow-host HOST` | Accept an extra `Host` header, e.g. when behind a proxy |
 
 Environment overrides: `ABTOOL_PORT`, `ABTOOL_DATA`, `ABTOOL_LAN` (used by the iPhone
-launcher), `ABTOOL_KOKORO_DEVICE` (set to `cpu` if the GPU path misbehaves).
+launcher), `ABTOOL_KOKORO_DEVICE` (`mps` or `cpu` — the launchers already set the
+`PYTORCH_ENABLE_MPS_FALLBACK=1` that Metal needs, so `cpu` is the one worth trying if the
+GPU path misbehaves or you want to compare speeds).
 
 ## How it stays private
 

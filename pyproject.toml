@@ -17,7 +17,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-kokoro = ["kokoro>=0.9"]
+kokoro = ["kokoro>=0.9.4"]
 
 [project.scripts]
 papervoice = "papervoice.__main__:main"

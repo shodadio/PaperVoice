@@ -64,8 +64,9 @@ def describe() -> List[dict]:
         try:
             is_available = engine.available()
             voices = engine.voices() if is_available else []
+            device = engine.device_note() if is_available else ""
         except Exception:
-            is_available, voices = False, []
+            is_available, voices, device = False, [], ""
         out.append(
             {
                 "id": key,
@@ -74,6 +75,7 @@ def describe() -> List[dict]:
                 "hint": engine.hint(),
                 "default": key == default,
                 "default_voice": engine.default_voice() if is_available else "",
+                "device": device,
                 "voices": voices,
             }
         )

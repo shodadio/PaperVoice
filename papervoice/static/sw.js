@@ -2,7 +2,7 @@
    service worker on a plain http:// LAN address, which is fine - the app
    needs the Mac for everything anyway. */
 
-const CACHE = 'papervoice-v2';
+const CACHE = 'papervoice-v3';
 const SHELL = [
   '/',
   '/styles.css',

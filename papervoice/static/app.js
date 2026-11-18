@@ -245,7 +245,7 @@ function renderEngines(book) {
   const voice = book.voice || engine.default_voice || (engine.voices && engine.voices[0] && engine.voices[0].id) || '';
   if (voice) voiceSelect.value = voice;
   $id('voiceWrap').hidden = !(engine.voices || []).length;
-  $id('engineHint').textContent = engine.hint || '';
+  $id('engineHint').textContent = [engine.hint, engine.device].filter(Boolean).join(' ');
 
   engineSelect.onchange = () => patchBook({ engine: engineSelect.value, voice: '' });
   voiceSelect.onchange = () => patchBook({ voice: voiceSelect.value });

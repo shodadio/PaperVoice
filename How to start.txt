@@ -35,3 +35,10 @@ Better voices (optional, one time, no typing)
   The neural voices need Python 3.10, 3.11 or 3.12. If this Mac only has an
   older or newer Python, the installer says so in plain words and offers the
   free download; everything else keeps working exactly as before.
+
+Which chip is doing the work
+  On the web page, under the narrator list, it says "Narrating on the Apple
+  GPU" or "Narrating on the CPU". The Apple GPU is what you want on an
+  Apple Silicon Mac. If it says the CPU there, double-click "Install Kokoro
+  Voices.command" again - the installed voices are too old to pick the GPU.
+  An Intel Mac has no GPU option, so the CPU is normal there.

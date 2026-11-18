@@ -4,6 +4,11 @@
 
 cd "$(dirname "$0")" || exit 1
 
+# Kokoro's vocoder uses a couple of steps the Apple GPU has no version of.
+# PyTorch runs those on the CPU and keeps the rest on the GPU only when this is
+# set; without it the GPU is refused and the whole voice runs on the CPU.
+export PYTORCH_ENABLE_MPS_FALLBACK=1
+
 PORT="${ABTOOL_PORT:-8765}"
 DATA="${ABTOOL_DATA:-$HOME/Library/Application Support/Audiobook Tool/library}"
 TOKENFILE="$DATA/.access-token"

@@ -30,6 +30,11 @@ class Engine:
         return ""
 
     @classmethod
+    def device_note(cls) -> str:
+        """Short sentence about the chip this engine uses, or "" if it has none."""
+        return ""
+
+    @classmethod
     def default_voice(cls) -> str:
         voices = cls.voices()
         return voices[0]["id"] if voices else ""
