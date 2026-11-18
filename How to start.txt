@@ -1,0 +1,27 @@
+AUDIOBOOK TOOL - STARTING IT WITHOUT THE TERMINAL
+
+On this Mac
+  1. Double-click "Start Audiobook Tool.command".
+     macOS may refuse the first time because the file was downloaded:
+     right-click it > Open > Open.
+  2. A Terminal window opens and sets things up. First run only: a few
+     minutes and an internet connection. Leave the window open after that;
+     your browser opens the tool by itself.
+  3. To stop the tool: close that Terminal window, or press Control-C in it.
+
+On your iPhone (same Wi-Fi as the Mac)
+  1. Double-click "Start Audiobook Tool (iPhone).command" instead.
+  2. The window shows a QR code - scan it with the iPhone camera.
+  3. In Safari: Share > Add to Home Screen.
+
+Where your books and finished audiobooks are kept
+  ~/Library/Application Support/Audiobook Tool/library
+
+If it says Python is missing
+  Install the free Python 3.9+ package from https://www.python.org/downloads/macos/
+  then double-click the launcher again.
+
+Good default voice
+  macOS's built-in "say" voices are used automatically - no downloads.
+  Optional higher-quality voice: run the installer once for the "kokoro"
+  extra (see the chat for the one command), and Kokoro becomes the default.

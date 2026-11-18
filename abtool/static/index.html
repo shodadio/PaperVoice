@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Audiobook</title>
+<meta name="theme-color" content="#14110e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Audiobook">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="icon" href="/icon-192.png">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+<header class="top">
+  <h1>Audiobook</h1>
+  <span class="chip" id="net" hidden>Wi-Fi</span>
+</header>
+
+<main id="app">
+
+  <section id="library">
+    <label class="drop" id="drop" for="file">
+      <span class="drop-icon" aria-hidden="true"></span>
+      <strong>Add a document</strong>
+      <span class="meta">EPUB · PDF · DOCX · TXT · Markdown · HTML</span>
+    </label>
+    <input id="file" type="file" multiple hidden
+           accept=".epub,.pdf,.docx,.txt,.md,.markdown,.html,.htm,.mobi,.azw3,.azw">
+
+    <ul class="books" id="books"></ul>
+    <p class="empty" id="empty">No documents yet. Add one above to begin.</p>
+  </section>
+
+  <section id="book" hidden>
+    <button class="back" id="back" type="button">&larr; Library</button>
+    <h2 id="bookTitle"></h2>
+    <p class="meta" id="bookMeta"></p>
+
+    <div class="step"><span class="n">2</span><h3>Chapters</h3></div>
+    <div class="row" id="chapterTools">
+      <button class="ghost" id="allOn" type="button">Select all</button>
+      <button class="ghost" id="allOff" type="button">None</button>
+    </div>
+    <ul class="chapters" id="chapters"></ul>
+
+    <div class="step"><span class="n">3</span><h3>Process</h3></div>
+    <div class="opts">
+      <label for="engine">Voice engine
+        <select id="engine"></select>
+      </label>
+      <label for="voice" id="voiceWrap">Narrator
+        <select id="voice"></select>
+      </label>
+    </div>
+    <p class="meta" id="engineHint"></p>
+    <button class="primary" id="process" type="button">Process into audio</button>
+
+    <div class="prog" id="progWrap" hidden>
+      <div class="bar"><i id="progBar"></i></div>
+      <p class="meta" id="progText"></p>
+    </div>
+    <p class="err" id="err" hidden></p>
+
+    <div class="step" id="outStep" hidden><span class="n">4</span><h3>Name and download</h3></div>
+    <div id="outWrap" hidden>
+      <label for="name">File name
+        <input id="name" type="text" inputmode="text" autocomplete="off" spellcheck="false" placeholder="My audiobook">
+      </label>
+      <div class="formats" id="formats">
+        <label><input type="radio" name="fmt" value="m4b" checked><span>M4B<em>chaptered</em></span></label>
+        <label><input type="radio" name="fmt" value="mp3"><span>MP3<em>single file</em></span></label>
+      </div>
+      <a class="primary" id="download" href="#" download>Download</a>
+      <p class="meta tip">On iPhone the file lands in <b>Files &rarr; Downloads</b>. Long-press it, Share, then <b>Books</b> to listen with chapters.</p>
+    </div>
+  </section>
+
+</main>
+
+<div class="toast" id="toast" hidden></div>
+<script src="/app.js"></script>
+</body>
+</html>
