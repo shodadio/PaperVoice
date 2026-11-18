@@ -7,6 +7,7 @@ import os
 import re
 import secrets
 import shutil
+import tempfile
 import threading
 from datetime import datetime
 from pathlib import Path
@@ -113,11 +114,38 @@ def load(book_id: str) -> dict:
 
 
 def save(book: dict) -> None:
+    """Write the book's state atomically.
+
+    More than one thread saves the same book (a render reporting progress, the
+    page saving a chapter selection), so every write gets its own temporary
+    file and writes are serialised. Sharing one temporary name made the second
+    writer fail with "No such file or directory" after the first one had
+    already renamed it.
+    """
     directory = book_dir(book["id"])
     directory.mkdir(parents=True, exist_ok=True)
-    temporary = directory / ".book.json.tmp"
-    temporary.write_text(json.dumps(book, indent=1, ensure_ascii=False), encoding="utf-8")
-    os.replace(str(temporary), str(directory / "book.json"))
+    payload = json.dumps(book, indent=1, ensure_ascii=False)
+    with lock(book["id"]):
+        handle = tempfile.NamedTemporaryFile(
+            "w",
+            encoding="utf-8",
+            dir=str(directory),
+            prefix=".book.json.",
+            suffix=".tmp",
+            delete=False,
+        )
+        try:
+            with handle:
+                handle.write(payload)
+                handle.flush()
+                os.fsync(handle.fileno())
+            os.replace(handle.name, str(directory / "book.json"))
+        except BaseException:
+            try:
+                os.unlink(handle.name)
+            except OSError:
+                pass
+            raise
 
 
 def all_books() -> List[dict]:
