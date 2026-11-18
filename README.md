@@ -26,6 +26,9 @@ play in Books, VLC, or anywhere else.
 
 - macOS with **Python 3.9 or newer** — install it free from
   [python.org/downloads/macos](https://www.python.org/downloads/macos/) if `python3` is missing.
+  The optional Kokoro voices are only published for Python 3.10–3.12, so the Kokoro
+  installer switches the tool to 3.12 when that Python is on the Mac, and otherwise
+  says plainly which Python to install.
 - An internet connection for the first run only: it downloads the Python packages it needs
   (a few minutes).
 - Optional: an iPhone or iPad on the same Wi-Fi, for the phone launcher.

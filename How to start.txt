@@ -32,3 +32,6 @@ Better voices (optional, one time, no typing)
   the first time you run it - choose "Install Kokoro" there if you like.
   If you skip it, nothing breaks and nothing else changes; the file stays in
   the folder so you can run it whenever you want the better voices.
+  The neural voices need Python 3.10, 3.11 or 3.12. If this Mac only has an
+  older or newer Python, the installer says so in plain words and offers the
+  free download; everything else keeps working exactly as before.
