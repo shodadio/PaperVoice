@@ -19,7 +19,10 @@ bail() {
 }
 
 find_python() {
-  for name in python3.13 python3.12 python3.11 python3.10 python3.9 python3; do
+  # 3.10-3.12 first: Kokoro only installs there, so a Mac with several Pythons
+  # gets an environment that can also take the better voices. The tool itself
+  # runs on 3.9 and newer either way.
+  for name in python3.12 python3.11 python3.10 python3.13 python3.9 python3; do
     found="$(command -v "$name" 2>/dev/null)" || continue
     if "$found" -c 'import sys; sys.exit(0 if sys.version_info >= (3, 9) else 1)' >/dev/null 2>&1; then
       printf '%s' "$found"
