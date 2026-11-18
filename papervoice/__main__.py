@@ -1,4 +1,4 @@
-"""Command line entry point: `abtool serve`."""
+"""Command line entry point: `papervoice serve`."""
 
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ from .app import create_app
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        prog="abtool",
+        prog="papervoice",
         description="Turn EPUB, PDF and other documents into downloadable audiobooks, using this machine.",
     )
     parser.add_argument("command", nargs="?", default="serve", choices=["serve"], help="serve (default)")

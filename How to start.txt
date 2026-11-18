@@ -21,7 +21,14 @@ If it says Python is missing
   Install the free Python 3.9+ package from https://www.python.org/downloads/macos/
   then double-click the launcher again.
 
-Good default voice
-  macOS's built-in "say" voices are used automatically - no downloads.
-  Optional higher-quality voice: run the installer once for the "kokoro"
-  extra (see the chat for the one command), and Kokoro becomes the default.
+Voices
+  The macOS built-in "say" voices are used automatically - no downloads,
+  instant, robotic but perfectly usable. This is always the fallback.
+
+Better voices (optional, one time, no typing)
+  Double-click "Install Kokoro Voices.command". It asks once, downloads the
+  neural voices (a few hundred MB, free, on-device) and after that the tool
+  narrates with Kokoro by default. The start-up launcher also offers this
+  the first time you run it - choose "Install Kokoro" there if you like.
+  If you skip it, nothing breaks and nothing else changes; the file stays in
+  the folder so you can run it whenever you want the better voices.

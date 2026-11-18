@@ -20,7 +20,7 @@ from fastapi.responses import (
 
 from . import ingest, proc, store, tts
 
-COOKIE = "abtool"
+COOKIE = "papervoice"
 STATIC = Path(__file__).parent / "static"
 
 _MEDIA = {
@@ -57,7 +57,7 @@ def create_app(
     def require_auth(request: Request) -> None:
         if not require_token:
             return
-        supplied = request.cookies.get(COOKIE) or request.headers.get("x-abtool-token") or ""
+        supplied = request.cookies.get(COOKIE) or request.headers.get("x-papervoice-token") or ""
         if not secrets.compare_digest(supplied, token):
             raise HTTPException(
                 status_code=401,
@@ -178,6 +178,13 @@ def create_app(
         book["error"] = ""
         store.save(book)
         return store.summary(book)
+
+    @app.post("/api/books/{book_id}/cancel")
+    def cancel(book_id: str, _: None = Depends(require_auth)):
+        _load(book_id)
+        if not proc.cancel(book_id):
+            raise HTTPException(status_code=409, detail="Nothing is being processed.")
+        return {"ok": True}
 
     @app.get("/api/books/{book_id}/download")
     def download(

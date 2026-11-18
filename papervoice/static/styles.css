@@ -300,6 +300,10 @@ select:focus, input:focus { outline: 2px solid #6b5330; outline-offset: 1px; }
 .primary:disabled { opacity: .45; cursor: default; }
 .primary:active { transform: translateY(1px); }
 
+.process-row { display: flex; gap: 8px; align-items: stretch; margin-top: 14px; }
+.process-row .primary { margin-top: 0; flex: 1 1 auto; }
+.process-row .ghost { flex: none; min-height: 52px; padding: 0 18px; border-radius: 13px; }
+
 .prog { margin-top: 16px; }
 .bar { height: 9px; background: var(--panel-2); border-radius: 999px; overflow: hidden; }
 .bar i { display: block; height: 100%; width: 0; background: var(--amber); transition: width .4s ease; }

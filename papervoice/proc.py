@@ -12,7 +12,12 @@ from . import bundle, clean, store, tts
 from .tts.base import TTSError
 
 _RUNNING: Dict[str, threading.Thread] = {}
+_CANCEL: Dict[str, threading.Event] = {}
 _GUARD = threading.Lock()
+
+
+class Cancelled(Exception):
+    """Raised inside a render thread once the user has cancelled."""
 
 
 def is_running(book_id: str) -> bool:
@@ -20,21 +25,38 @@ def is_running(book_id: str) -> bool:
     return bool(thread and thread.is_alive())
 
 
+def cancel(book_id: str) -> bool:
+    """Ask a running render to stop. Chapters already finished are kept."""
+    stop = _CANCEL.get(book_id)
+    if stop is None or not is_running(book_id):
+        return False
+    stop.set()
+    return True
+
+
 def start(book_id: str) -> None:
     with _GUARD:
         if is_running(book_id):
             raise RuntimeError("This book is already being processed.")
-        thread = threading.Thread(target=run, args=(book_id,), name=f"render-{book_id}", daemon=True)
+        stop = threading.Event()
+        thread = threading.Thread(
+            target=run, args=(book_id, stop), name=f"render-{book_id}", daemon=True
+        )
         _RUNNING[book_id] = thread
+        _CANCEL[book_id] = stop
         thread.start()
 
 
-def run(book_id: str) -> None:
+def run(book_id: str, stop: Optional[threading.Event] = None) -> None:
     """Synthesise every included chapter, then mux the export files.
 
     Safe to run twice: chapters whose text and voice are unchanged and whose
     audio already exists are skipped, so an interrupted job resumes.
+
+    Cancelling (see `cancel`) takes effect between chunks. Chapters that are
+    already finished keep their audio, so processing again resumes there.
     """
+    stop = stop or threading.Event()
     book = store.load(book_id)
     directory = store.book_dir(book_id)
     workdir = directory / "work"
@@ -68,6 +90,7 @@ def run(book_id: str) -> None:
         started = time.time()
         done = 0
         for position, chapter in enumerate(included, start=1):
+            _check(stop)
             text_path = directory / chapter["text_file"]
             text = text_path.read_text(encoding="utf-8")
             stamp = hashlib.sha1(
@@ -91,6 +114,7 @@ def run(book_id: str) -> None:
 
             parts = []
             for index, chunk in enumerate(chunks):
+                _check(stop)
                 raw = workdir / f"chunk-{index:04d}{engine.suffix}"
                 engine.synth(chunk, str(raw))
                 normalized = workdir / f"part-{index:04d}.wav"
@@ -100,6 +124,7 @@ def run(book_id: str) -> None:
                 done += len(chunk)
                 _progress(book, done, total, position, len(included), chapter["title"], started, "synthesising")
 
+            _check(stop)
             audio_path.parent.mkdir(parents=True, exist_ok=True)
             bundle.build_chapter(parts, audio_path, workdir)
             for part in parts:
@@ -111,6 +136,7 @@ def run(book_id: str) -> None:
             store.save(book)
 
         _progress(book, total, total, len(included), len(included), "", started, "bundling")
+        _check(stop)
         chapters_audio = [
             (chapter["title"], directory / chapter["audio"])
             for chapter in included
@@ -135,6 +161,20 @@ def run(book_id: str) -> None:
         }
         book["error"] = ""
         store.save(book)
+    except Cancelled:
+        for chapter in book["chapters"]:
+            if chapter.get("status") == "working":
+                chapter["status"] = ""
+        book["status"] = "ready"
+        book["error"] = ""
+        progress = book.get("progress") or {}
+        progress["stage"] = "cancelled"
+        progress["eta"] = None
+        book["progress"] = progress
+        try:
+            store.save(book)
+        except Exception:
+            pass
     except Exception as exc:  # noqa: BLE001 - surfaced in the UI
         book["status"] = "error"
         book["error"] = str(exc)[:500]
@@ -149,6 +189,12 @@ def run(book_id: str) -> None:
         _cleanup(workdir)
         with _GUARD:
             _RUNNING.pop(book_id, None)
+            _CANCEL.pop(book_id, None)
+
+
+def _check(stop: threading.Event) -> None:
+    if stop.is_set():
+        raise Cancelled()
 
 
 def _progress(book, done, total, position, count, title, started, stage) -> None:

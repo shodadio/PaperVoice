@@ -3,8 +3,8 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "abtool"
-version = "0.1.0"
+name = "papervoice"
+version = "0.1.1"
 description = "Turn EPUB, PDF and other documents into downloadable audiobooks, on-device."
 requires-python = ">=3.9"
 dependencies = [
@@ -20,10 +20,10 @@ dependencies = [
 kokoro = ["kokoro>=0.9"]
 
 [project.scripts]
-abtool = "abtool.__main__:main"
+papervoice = "papervoice.__main__:main"
 
 [tool.setuptools]
-packages = ["abtool", "abtool.ingest", "abtool.tts"]
+packages = ["papervoice", "papervoice.ingest", "papervoice.tts"]
 
 [tool.setuptools.package-data]
-abtool = ["static/*"]
+papervoice = ["static/*"]

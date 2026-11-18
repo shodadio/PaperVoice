@@ -83,7 +83,7 @@ def _convert_with_calibre(path: Path) -> Path:
             f"{path.suffix.upper()} needs Calibre. Install it (brew install --cask calibre) "
             "or convert the file to EPUB first."
         )
-    target = Path(tempfile.mkdtemp(prefix="abtool-convert-")) / (path.stem + ".epub")
+    target = Path(tempfile.mkdtemp(prefix="papervoice-convert-")) / (path.stem + ".epub")
     result = subprocess.run(
         [exe, str(path), str(target)], capture_output=True, text=True, timeout=600
     )

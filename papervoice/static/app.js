@@ -8,6 +8,7 @@ const state = {
   book: null,
   timer: null,
   savePending: null,
+  cancelling: false,
 };
 
 /* ---------- helpers ---------- */
@@ -263,10 +264,14 @@ async function patchBook(patch) {
 function renderProgress(book) {
   const processing = book.status === 'processing';
   const button = $id('process');
+  const cancelButton = $id('cancel');
   const hasAudio = (book.exports || []).length > 0;
 
   button.disabled = processing;
   button.textContent = processing ? 'Processing…' : (hasAudio ? 'Process again' : 'Process into audio');
+  cancelButton.hidden = !processing;
+  cancelButton.disabled = state.cancelling;
+  cancelButton.textContent = state.cancelling ? 'Cancelling…' : 'Cancel';
 
   if (!processing) {
     $id('progWrap').hidden = true;
@@ -329,6 +334,7 @@ function updateDownload() {
 async function startProcessing() {
   if (!state.book) return;
   showError('');
+  state.cancelling = false;
   const button = $id('process');
   button.disabled = true;
   button.textContent = 'Starting…';
@@ -340,6 +346,19 @@ async function startProcessing() {
     button.disabled = false;
     if (error.message !== 'locked') showError(error.message);
     renderProgress(state.book);
+  }
+}
+
+async function cancelProcessing() {
+  if (!state.book || state.cancelling) return;
+  state.cancelling = true;
+  renderProgress(state.book);
+  try {
+    await api(`/api/books/${state.book.id}/cancel`, { method: 'POST' });
+  } catch (error) {
+    state.cancelling = false;
+    renderProgress(state.book);
+    if (error.message !== 'locked') showError(error.message);
   }
 }
 
@@ -364,8 +383,12 @@ async function syncBook() {
     renderBook();
     if (fresh.status !== 'processing') {
       stopPolling();
+      state.cancelling = false;
       if (wasProcessing && fresh.status === 'done') {
         toast('Audio ready');
+        refreshLibrary().catch(() => {});
+      } else if (wasProcessing && (fresh.progress || {}).stage === 'cancelled') {
+        toast('Cancelled — the chapters already finished are kept');
         refreshLibrary().catch(() => {});
       }
     }
@@ -454,6 +477,7 @@ function boot() {
   });
 
   $id('process').addEventListener('click', startProcessing);
+  $id('cancel').addEventListener('click', cancelProcessing);
   $id('name').addEventListener('input', updateDownload);
   $id('formats').addEventListener('change', updateDownload);
 

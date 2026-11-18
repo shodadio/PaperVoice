@@ -70,7 +70,7 @@ if [ ! -x .venv/bin/python ]; then
   "$PY" -m venv .venv || bail "Could not create the Python environment in this folder."
 fi
 
-STAMP=".venv/.abtool-installed"
+STAMP=".venv/.papervoice-installed"
 WANT="$("$PY" -c 'import hashlib; print(hashlib.sha1(open("pyproject.toml","rb").read()).hexdigest())' 2>/dev/null)" || WANT=""
 HAVE="$(cat "$STAMP" 2>/dev/null)" || HAVE=""
 if [ -z "$WANT" ] || [ "$HAVE" != "$WANT" ]; then
@@ -81,6 +81,31 @@ if [ -z "$WANT" ] || [ "$HAVE" != "$WANT" ]; then
     bail "Install failed - see the messages above (usually a network problem)."
   fi
   printf '%s' "$WANT" > "$STAMP"
+fi
+
+# Optional neural voices: offer them once, then never ask again.
+# Declining changes nothing - the built-in macOS voices stay the fallback.
+KOKORO_SKIP=".venv/.kokoro-skipped"
+if [ ! -f "$KOKORO_SKIP" ] && command -v osascript >/dev/null 2>&1 \
+   && ! .venv/bin/python -c 'import kokoro' >/dev/null 2>&1; then
+  PICK="$(osascript -e 'display dialog "Add the Kokoro neural voices? One-time download of about 300 MB, then a 330 MB voice model on first use. Until then the built-in macOS voices are used." buttons {"Use macOS voices", "Install Kokoro"} default button "Install Kokoro" with title "Audiobook Tool" with icon note' 2>/dev/null)" || PICK=""
+  case "$PICK" in
+    *"Install Kokoro"*)
+      printf '\n'
+      if ABTOOL_KOKORO_YES=1 "./Install Kokoro Voices.command"; then
+        say_line ""
+        say_line "  Kokoro is ready - it will be used for narration."
+      else
+        say_line ""
+        say_line "  Kokoro was not installed - the macOS voices will be used."
+      fi
+      printf '\n'
+      ;;
+    *"Use macOS voices"*)
+      printf 'skipped' > "$KOKORO_SKIP"
+      say_line "  Using the built-in macOS voices (install \"Install Kokoro Voices.command\" later for the neural ones)."
+      ;;
+  esac
 fi
 
 mkdir -p "$DATA" || bail "Could not create the library folder: $DATA"
@@ -107,7 +132,7 @@ fi
 ( sleep 2; open "http://127.0.0.1:$PORT/" ) &
 
 set +e
-.venv/bin/python -m abtool serve "$@"
+.venv/bin/python -m papervoice serve "$@"
 STATUS=$?
 set -e
 

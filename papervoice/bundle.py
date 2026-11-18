@@ -174,7 +174,7 @@ def export(
         timeline.append((label or "Chapter", start, max(end, start + 1000)))
 
     meta = workdir / "chapters.ffmeta"
-    lines = [";FFMETADATA1", f"title={_escape(title)}", "artist=abtool", f"album={_escape(title)}"]
+    lines = [";FFMETADATA1", f"title={_escape(title)}", "artist=papervoice", f"album={_escape(title)}"]
     for label, start, end in timeline:
         lines += ["[CHAPTER]", "TIMEBASE=1/1000", f"START={start}", f"END={end}", f"title={_escape(label)}"]
     meta.write_text("\n".join(lines) + "\n", encoding="utf-8")
@@ -198,7 +198,7 @@ def export(
                     ffmpeg_path(), "-hide_banner", "-loglevel", "error", "-y",
                     "-i", str(full),
                     "-c:a", "libmp3lame", "-b:a", BITRATE, "-ac", str(CHANNELS),
-                    "-metadata", f"title={title}", "-metadata", "artist=abtool",
+                    "-metadata", f"title={title}", "-metadata", "artist=papervoice",
                     "-metadata", f"album={title}", str(target),
                 ]
             )
@@ -214,4 +214,4 @@ def export(
 
 
 def temp_dir() -> Path:
-    return Path(tempfile.mkdtemp(prefix="abtool-audio-"))
+    return Path(tempfile.mkdtemp(prefix="papervoice-audio-"))

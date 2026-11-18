@@ -1,10 +1,8 @@
 """Kokoro-82M: open weights, 24 kHz, natural voice, runs on the Apple GPU.
 
-Optional by design. Install with:
-
-    pip install kokoro soundfile      # torch backend, uses MPS on Apple Silicon
-
-The pipeline warns and falls back to macOS `say` if the package is missing.
+Optional by design. Install it by double-clicking "Install Kokoro Voices.command"
+in the tool folder - no terminal needed. The pipeline falls back to macOS `say`
+whenever the package is missing, so the tool works before and without it.
 """
 
 from __future__ import annotations
@@ -62,8 +60,9 @@ class KokoroEngine(Engine):
     @classmethod
     def hint(cls) -> str:
         return (
-            "Install with `pip install kokoro`. Free weights, ~350 MB on first run, "
-            "runs on the Apple GPU; slower than the macOS voices but far more natural."
+            "Not installed yet. Double-click \"Install Kokoro Voices.command\" in the tool "
+            "folder: free weights, one-time download, runs on the Apple GPU. Until then the "
+            "macOS voices are used - slower to set up but instantly available."
         )
 
     @classmethod
